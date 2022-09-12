@@ -1,0 +1,219 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ request.user }} | Edge Tasks</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'images/logo.png' %}" rel="icon">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/flowbite@1.5.2/dist/flowbite.min.css" /> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    {% block imports %}
+    {% endblock %}
+</head>
+<body>
+
+    <!-- Navbar -->
+
+<div class="w-screen h-12 bg-red-500 sticky top-0 flex">
+        <div class="w-1/12 h-full flex justify-end items-center">
+            <div class="space-y-2 lg:hidden">
+                <span class="block w-8 h-0.5 bg-white"></span>
+                <span class="block w-8 h-0.5 bg-white"></span>
+                <span class="block w-5 h-0.5 bg-white"></span>
+            </div>
+        </div>
+        <div class="w-1/2 flex justify-center items-center">
+        </div>
+        <div class="w-1/4 relative top-1/2">
+            <button id="dropdownAvatarNameButton" data-dropdown-toggle="dropdownAvatarName" class="z-30 opacity-100 absolute translate-y-half flex items-center text-sm font-medium text-black rounded-full hover:text-gray-800 dark:hover:text-blue-500 dark:text-white" type="button">
+                <span class="sr-only">Open user menu</span>
+                <!-- <img class="mr-2 w-8 h-8 rounded-full" src="{% static 'images/no_profile.png' %}" alt="user photo"> -->
+                
+                <div class="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 mx-1 bg-white rounded-full border-2 border-blue-600 dark:bg-gray-600">
+                    <span class="font-medium text-blue-600 dark:text-blue-300">{{ request.user.username.0 | capfirst }}</span>
+                </div>
+
+                {{ request.user }}
+                <svg class="w-4 h-4 mx-1.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        
+            <!-- Dropdown menu -->
+            <div id="dropdownAvatarName" class="popup absolute opacity-100 z-30 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 hidden" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 62.4px, 0px);">
+                <div class="py-3 px-4 text-sm text-gray-900 dark:text-white">
+                <div class="font-medium ">User</div>
+                <div class="truncate">{{ request.user.email }}</div>
+                </div>
+                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformdropdownAvatarNameButtonationButton">
+                <li>
+                    <!-- <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a> -->
+                </li>
+                </ul>
+                <div class="py-1">
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="block w-full text-left py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</button>
+                </form>
+                </div>
+            </div>
+        </div>
+</div>
+  
+  <div id="confirmDialog" class="hidden z-50 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 md:inset-0 h-modal md:h-full justify-center items-center flex" aria-modal="true" role="dialog">
+      <div class="relative p-4 w-full max-w-md h-full z-50 md:h-auto z-1000">
+          <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+              <button id="confirmClose" type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="popup-modal">
+                  <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+              <div class="p-6 text-center">
+                  <svg aria-hidden="true" class="mx-auto mb-4 w-14 h-14 text-gray-400 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <h3 id="confirmMessage" class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"></h3>
+                  <button id="confirmYes" data-modal-toggle="popup-modal" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">Yes, I'm sure</button>
+                  <button id="confirmNo" data-modal-toggle="popup-modal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">No, cancel</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<div class="flex">
+
+    <aside class="w-48" style="height: 100vh;" aria-label="Sidebar">
+        <div class="overflow-y-hidden py-4 px-3 bg-red-50 rounded h-full navbar-block fixed">
+            <a href="" class="flex items-center pl-2.5 mb-5">
+               <img src="{% static 'images/logo.png' %}" class="mr-3 h-6 sm:h-7" alt="Edge Works Logo">
+               <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Edge Tasks</span>
+            </a>
+            <ul class="space-y-2">
+               <li>
+                  <a href="{% url 'inbox' %}" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700">
+                     <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z"></path><path d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"></path></svg>
+                     <span class="flex-1 ml-3 whitespace-nowrap">Inbox</span>
+                     {% if counts.inbox_count != 0 %}<span class="inline-flex justify-center items-center p-3 ml-3 w-3 h-3 text-sm font-medium text-blue-600 bg-blue-200 rounded-full dark:bg-blue-900 dark:text-blue-200">{{ counts.inbox_count }}</span>{% endif %}
+                  </a>
+               </li>
+               <li>
+                 <a href="{% url 'today' %}" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700">
+                    <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M4.562 18.812q-1 0-1.697-.708-.698-.708-.698-1.687V5.542q0-1 .698-1.698.697-.698 1.697-.698h.917V1.188h2.125v1.958h4.792V1.188h2.125v1.958h.917q1 0 1.697.698.698.698.698 1.698v10.875q0 .979-.698 1.687-.697.708-1.697.708Zm0-2.395h10.876V8.729H4.562v7.688Zm0-9.542h10.876V5.542H4.562Zm0 0V5.542v1.333Z"></path></svg>
+                    <span class="flex-1 ml-3 whitespace-nowrap">Today</span>
+                    {% if counts.today_count != 0 %}<span class="inline-flex justify-center items-center p-3 ml-3 w-3 h-3 text-sm font-medium text-blue-600 bg-blue-200 rounded-full dark:bg-blue-900 dark:text-blue-200">{{ counts.today_count }}</span>{% endif %}
+                 </a>
+              </li>
+              <li>
+                 <a href="{% url 'upcomming' %}" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700">
+                    <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M3.562 18.354q-1 0-1.697-.698-.698-.698-.698-1.698v-3.75q0-1 .698-1.698.697-.698 1.697-.698h3.98q.166.876.854 1.438.687.562 1.604.562.875 0 1.573-.562t.885-1.438h3.98q1 0 1.697.698.698.698.698 1.698v3.75q0 1-.698 1.698-.697.698-1.697.698Zm0-2.396h12.876v-3.75h-2.48q-.687.959-1.718 1.49-1.032.531-2.219.531-1.229 0-2.261-.531-1.031-.531-1.698-1.49h-2.5v3.75Zm11.084-7.5L12.958 6.75l3.188-3.208 1.708 1.708Zm-9.292 0L2.146 5.25l1.708-1.708L7.042 6.75Zm3.438-2.333V1.583h2.396v4.542Zm-5.23 9.833H16.438Z"></path></svg>
+                    <span class="flex-1 ml-3 whitespace-nowrap">Upcomming</span>
+                    {% if counts.upcomming_count != 0 %}<span class="inline-flex justify-center items-center p-3 ml-3 w-3 h-3 text-sm font-medium text-blue-600 bg-blue-200 rounded-full dark:bg-blue-900 dark:text-blue-200">{{ counts.upcomming_count }}</span>{% endif %}
+                 </a>
+              </li>
+              <li>
+                <a href="{% url 'invite' %}" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700">
+                   <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M3.562 16.812q-1 0-1.697-.708-.698-.708-.698-1.687V5.583q0-1 .698-1.698.697-.697 1.697-.697h12.876q1 0 1.697.708.698.708.698 1.687v8.834q0 1-.698 1.698-.697.697-1.697.697Zm6.438-5L3.562 8.104v6.313h12.876V8.104Zm0-2.437 6.542-3.792H3.458ZM3.458 8.104V5.583v8.834h.104-.104Z"></path></svg>
+                   <span class="flex-1 ml-3 whitespace-nowrap">Invitations</span>
+                   {% if counts.invite_count != 0 %}<span class="inline-flex justify-center items-center p-3 ml-3 w-3 h-3 text-sm font-medium text-blue-600 bg-blue-200 rounded-full dark:bg-blue-900 dark:text-blue-200">{{ counts.invite_count }}</span>{% endif %}
+                </a>
+             </li>
+             <li>
+                <a href="{% url 'calendar' %}" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700">
+                   <svg aria-hidden="true" class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M4.562 18.812q-1 0-1.697-.708-.698-.708-.698-1.687V5.542q0-1 .698-1.698.697-.698 1.697-.698h.917V1.188h2.125v1.958h4.792V1.188h2.125v1.958h.917q1 0 1.697.698.698.698.698 1.698v10.875q0 .979-.698 1.687-.697.708-1.697.708Zm0-2.395h10.876V8.729H4.562v7.688Zm0-9.542h10.876V5.542H4.562Zm0 0V5.542v1.333ZM10 12.167q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.261.646-.26.271-.656.271Zm-3.25 0q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.271.646t-.646.271Zm6.5 0q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.271.646t-.646.271Zm-3.25 3q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.261.646-.26.271-.656.271Zm-3.25 0q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.271.646t-.646.271Zm6.5 0q-.375 0-.646-.271t-.271-.646q0-.375.271-.646t.646-.271q.375 0 .646.271t.271.646q0 .375-.271.646t-.646.271Z"></path></svg>
+                   <span class="flex-1 ml-3 whitespace-nowrap">Calendar</span>
+                </a>
+             </li>
+            </ul>
+            <br>
+            <div class="flex items-center justify-between">
+                <div class="p-2 text-xl font-medium dark:text-white">Projects</div>
+                <div id="add-project-btn" class="plus-parent translate-y-2 mr-2">
+                    <div class="plus-child-horizontal"></div>
+                    <div class="plus-child-vertical"></div>
+                </div>
+            </div>
+            <div class="">
+                <ul class="space-y-2 h-1/2 overflow-y-auto">
+                    {% for project in projects %}
+                    <li class=" w-full hover:bg-red-100 rounded-lg h-8 text-base"><a href="{% url 'project' project.slug %}"><h6 class="pl-4 text-lg font-normal dark:text-white">{{ project.title }}</h6></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <div class="w-full">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <div class="message sticky top-12 flex p-4 bg-green-100 border-t-4 border-green-500" role="alert">
+                        <svg class="flex-shrink-0 w-5 h-5 text-green-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <div class="ml-3 text-sm font-medium text-green-700">{{ message }}</div>
+                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
+                          <svg class="message-close w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                {% elif message.tags == "error" %}
+                    <div class="message sticky top-12 flex p-4 bg-red-100 border-t-4 border-red-500" role="alert">
+                        <svg class="flex-shrink-0 w-5 h-5 text-red-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <div class="ml-3 text-sm font-medium text-red-700">{{ message }}</div>
+                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
+                          <svg class="message-close w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <div id="new-project-view" class="popup z-50 opacity-100 fixed inset-0 m-auto border-4 h-48 max-w-3xl flex items-center flex-col bg-red-50 hidden">
+        <h3 class="text-3xl font-bold dark:text-white text-center my-4">New Project</h3>
+        <form method="POST" action="{% url 'new_project' %}" class="flex items-center flex-col w-1/2">
+            {% csrf_token %}
+            <input name="title" type="text" placeholder="Project Title" class="border-bottom my-4 w-full text-2xl text-center bg-transparent">
+            <div class="flex self-end">
+                <div id="cancel-new-project" class="bg-slate-300 mx-2 cursor-pointer">Cancel</div>
+                <button type="submit" class="bg-red-500 px-2 py-1 text-white mx-2 rounded-sm">Save</button>
+            </div>
+        </form>
+    </div>
+
+    {% block task_area %}
+    {% endblock %}
+
+    </div>
+
+    {% block script %}
+    {% endblock %}
+
+    <script>
+        messages = document.getElementsByClassName("message")
+        messagesClose = document.getElementsByClassName("message-close")
+        for (let i = 0; i < messages.length; i++) {
+            messagesClose[i].addEventListener('click', () => {
+                messages[i].classList.add("hidden")
+            })
+        }
+
+        //New Project
+        const cancelProject = document.getElementById('cancel-new-project')
+        const projectView = document.getElementById('new-project-view')
+        const addProjectBtn = document.getElementById('add-project-btn')
+
+        cancelProject.addEventListener('click', () => {
+            projectView.classList.add('hidden')
+        })
+
+        addProjectBtn.addEventListener('click', () => {
+            projectView.classList.remove('hidden')
+        })
+
+        //Dropdown
+        const userAccountDropDownBtn = document.getElementById('dropdownAvatarNameButton')
+        const userAccountDropDown = document.getElementById('dropdownAvatarName')
+
+        userAccountDropDownBtn.addEventListener('click', () => {
+            userAccountDropDown.classList.toggle('hidden')
+        })
+    </script>
+</body>
+</html>

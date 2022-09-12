@@ -1,0 +1,145 @@
+.w-12 { width: 6%; }
+.w-87 { width: 94%; }
+.hidden {display: none;}
+input:focus, select:focus, textarea:focus{outline: none}
+
+.priority-1{color: rgb(239 68 68);}
+.priority-2{color: rgb(234 179 8);}
+.priority-3{color: rgb(34 197 94);}
+.priority-4{color: rgb(0 0 0);}
+
+.background-priority-1{background-color: rgb(254 226 226);}
+.background-priority-2{background-color: rgb(254 249 195);}
+.background-priority-3{background-color: rgb(220 252 231);}
+
+.taskview-background-priority-1{background-color: rgb(254 242 242);}
+.taskview-background-priority-2{background-color: rgb(255 251 235);}
+.taskview-background-priority-3{background-color: rgb(240 253 244);}
+
+.border-priority-1{border-color: rgb(239 68 68);}
+.border-priority-2{border-color: rgb(234 179 8);}
+.border-priority-3{border-color: rgb(34 197 94);}
+
+.task-area-min-width{min-width: 48rem;}
+
+.offset-close{
+    transform: translate(50%, -50%);
+    rotate: 45deg;
+}
+.plus-parent{
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: transparent;
+    display: inline-block;
+}
+
+.position-absolute{position: absolute !important;}
+
+.plus-child-vertical{
+    width: 10%;
+    height: 100%;
+    background: rgb(239 68 68);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.plus-child-horizontal{
+    width: 100%;
+    height: 10%;
+    background: rgb(239 68 68);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.h-5-100{height: 32px;}
+.h-95-100{height: calc(100% - 32px)}
+.z--10{z-index: -10}
+.translate-y-half{transform: translateY(-50%);}
+.border-bottom{border-bottom: 2px solid black;}
+.white-background{background-color: white; opacity: 1; z-index: 100}
+.h-192{height: 64rem}
+.z-1000{z-index: 1000}
+.z-index-20{z-index: 20}
+
+.center{
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* max-w-5xl task-area-min-width mx-auto */
+.task-area{
+    min-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.h-rest{height: calc(100% - 2rem)}
+
+
+@media(min-width: 768px) {
+    .task-area{
+        max-width: 42rem;
+        min-width: 36rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media(min-width: 1024px) {
+    .task-area{
+        max-width: 64rem;
+        min-width: 48rem;
+    }
+
+    .navbar-block{
+        display: block!important;
+    }
+}
+
+[x-cloak] {
+    display: none;
+}
+
+.translate-y-half{transform: translateY(-50%);}
+
+.tick-mark {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    }
+    
+    .tick-mark::before {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        height: 50%;
+        width: 3px;
+        background-color: green;
+        content: "";
+        transform: translateX(10px) rotate(-45deg);
+        transform-origin: left bottom;
+    }
+    
+    .tick-mark::after {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 3px;
+        width: 100%;
+        background-color: green;
+        content: "";
+        transform: translateX(10px) rotate(-45deg);
+        transform-origin: left bottom;
+    }
+
+    .tick-mark-border{
+        border: 2px solid green;
+        border-radius: 100%;
+    }
+
+    .width-64{width: 64rem}

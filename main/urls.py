@@ -1,0 +1,31 @@
+from django.urls import path
+from .views import *
+
+urlpatterns = [
+    path('', home_page, name="home_page"),
+    path('login', login_page, name="login_page"),
+    path('signup', signup_page, name="signup_page"),
+    path('calendar', calendar_view, name="calendar"),
+    path('add-todo', add_todo, name="add_todo"),
+    path('signup-done', signup_done, name="signup_done"),
+    path('signing-up', signing_up, name="signing_up"),
+    path('logout', handle_logout, name="logout"),
+    path('handle_login', handle_login, name="handle_login"),
+    path('task_view', task_view, name="task_view"),
+    path('delete-task', delete_task, name="delete_task"),
+    path('post-comment', post_comment, name="post_comment"),
+    path('edit-task', edit_task, name="edit_task"),
+    path('delete-project', delete_project, name="delete_project"),
+    path('task-collab', task_collab, name="task_collab"), 
+    path('invite', invite_view, name="invite"),
+    path('invite_form', invite_form, name="invite_form"),
+    path('inbox', inbox_view, name="inbox"),
+    path('today', today_view, name="today"),
+    path('upcomming', upcomming_view, name="upcomming"),
+    path('projects/<slug:slug>', project_view, name="project"),
+    path('new_project', new_project, name="new_project"),
+    path('task-done', task_done, name="task_done"),
+    path('remove-project-user', remove_project_user, name="remove_project_user"),
+    path('leave-project-user', leave_project_user, name="leave_project_user"),
+    path('typing_project_username', typing_project_username, name="typing_project_username"),
+]

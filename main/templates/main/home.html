@@ -1,0 +1,659 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block task_area %}
+
+    <div id="task-view" class="popup z-index-20 inset-0 margin-auto border-2 border-black h-4/5 w-4/5 fixed center hidden white-background">
+        <div id="task-view-bar" class="w-full h-8 bg-gray-100 flex justify-between items-center px-2">
+            <div id="task-view-date-added"></div>
+            <div id="task-view-close" class="plus-parent mr-2 offset-close">
+                <div class="plus-child-horizontal"></div>
+                <div class="plus-child-vertical"></div>
+            </div>
+        </div>
+        <div class="flex flex-col w-full h-rest lg:flex-row">
+            <div id="task-view-section-1" class="w-full h-1/2 overflow-y-auto overflow-x-hidden lg:w-3/5 lg:h-full">
+                <div id="task-view-info" class="">
+                    <div id="task-view-title" class="text-center text-3xl font-semibold my-2"></div>
+                    <div id="task-view-description" class="text-center text-xl font-normal my-2"></div>
+                    <div class="flex w-full h-auto justify-between my-2 px-6">
+                        <div id="task-view-due-date"></div>
+                        <div class="flex">
+                           <img id="edit-button" src="{% static 'images/edit.png' %}" width="24px" class="mx-1">
+                            <form id="deleteTaskForm" method="POST" action="{% url 'delete_task' %}" class="mx-1">
+                                {% csrf_token %}
+                                <input name="delete_task_id" type="hidden" value="" class="task-id">
+                                <button type="submit"><img src="{% static 'images/delete.png' %}" width="24px"></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="task-view-edit" class="hidden">
+                    <form method="POST" action="{% url 'edit_task' %}" class="flex flex-col items-center">
+                        {% csrf_token %}
+                        <input required name="task-id" type="hidden" class="task-id">
+                        <input required id="edit-title" name="title" placeholder="Title" class="w-auto text-center text-3xl font-semibold my-2 border-2">
+                        <input required id="edit-description" name="description" placeholder="Description" class="text-center text-xl font-normal my-2 border-2">
+                        <div class="flex w-full h-auto justify-between my-2 px-6">
+                            <div>
+                                <input required id="edit-date-time" name="date-time" type="datetime-local">
+                                <select required id="edit-priority" name="priority" id="" class="">
+                                    <option id="priority-4-edit" value="priority-4" class="priority-4">Priority 4</option>
+                                    <option id="priority-3-edit" value="priority-3" class="priority-3">Priority 3</option>
+                                    <option id="priority-2-edit" value="priority-2" class="priority-2">Priority 2</option>
+                                    <option id="priority-1-edit" value="priority-1" class="priority-1">Priority 1</option>
+                                </select>
+                            </div>
+                            <div class="flex">
+                                <div id="cancel-edit" class="bg-slate-300 mx-1">Cancel</div>
+                                <button type="submit" class="bg-red-500 px-2 py-1 text-white mx-1 rounded-sm">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="task-view-sub-section" class="w-full h-full flex flex-col items-start mt-4 lg:ml-6">
+                    
+                    <div id="sub-task-view" class="w-5/6 h-auto overflow-auto"></div>
+
+                    <div id="add-sub-task" class="border-2 w-11/12 h-auto my-6 p-2 rounded-lg hidden">
+                        <form method="post" action="{% url 'add_todo' %}" class="w-full">
+                            {% csrf_token %}
+                            <input type="hidden" name="parent" class="task-id">
+                            <input required name="title" placeholder="Title" type="text" class="w-full border-none my-1 px-4 font-bold h-10 focus:border-none">
+                            <input required name="description" placeholder="Description" type="text" class="w-full border-none my-1 px-4 font-light h-8">
+                            <div class="flex justify-between px-6 mt-2">
+                                <div></div>
+                                <div class="">
+                                    <button id="add-sub-task-cancel" class="justify-self-end bg-slate-300 mx-1">Cancel</button>
+                                    <button type="submit" class="justify-self-end bg-red-500 px-2 py-1 text-white mx-1 rounded-sm">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <button id="add-sub-task-button" class="flex justify-items-center items-center">
+                        <div class="flex text-xl">
+                            <div class="plus-parent translate-y-2 mr-2">
+                                <div class="plus-child-horizontal"></div>
+                                <div class="plus-child-vertical"></div>
+                            </div> Add Subtask
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div id="task-view-section-2" class="w-full h-1/2 overflow-y-auto lg:w-2/5 lg:h-full">
+                <div id="comment-title" class="text-2xl font-semibold p-2 ">Comments(0)</div>
+                    <div class="flex">
+                        <div class="inline-flex overflow-hidden relative justify-center items-center w-10 h-10 mx-1 bg-white rounded-full border-2 border-blue-600 dark:bg-gray-600">
+                            <span class="font-medium text-blue-600">{{ request.user.username.0 | capfirst }}</span>
+                        </div>
+                        <form method="POST" action="{% url 'post_comment' %}" class="w-full h-auto">
+                            {% csrf_token %}
+                            <input type="hidden" name="task_id" value="" class="task-id">
+                            <input required name="content" class="w-10/12 h-10 bg-transparent border-b-2">
+                            <button type="submit"><img src="{% static 'images/send.png' %}" class="h-8 w-auto"></button>
+                        </form>
+                    </div>
+                    <div id="comment-section" class="pl-2"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="task-area"> 
+
+        <br>
+        <h2 class="text-4xl font-bold dark:text-white">{{ heading }}</h2>
+        <br>
+
+        {% if is_project %}
+        <div class="h-8 max-w-2xl flex justify-end">
+            <!-- <button class="justify-self-end"><img src="{% static 'images/groups.png' %}" class="h-8 w-auto mx-2"></button> -->
+            <div class="flex flex-col items-center">
+                <button id="dropdownUsersButton" data-dropdown-toggle="dropdownUsers" data-dropdown-placement="bottom" class="text-white bg-red-500 hover:bg-red-600 foc font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">Project users <svg class="ml-2 w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                <!-- Dropdown menu -->
+                <div id="dropdownUsers" class="hidden z-10 w-60 bg-white rounded shadow dark:bg-gray-700" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="inset: 0px auto auto 0px; margin: 0px;">
+                    <ul class="overflow-y-auto py-1 h-48 text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                        <li>
+                            <a href="#" class="flex items-center py-2 px-2 hover:bg-gray-100">
+                                <div class="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 mx-1 bg-white rounded-full border-2 border-blue-600 dark:bg-gray-600">
+                                    <span class="font-medium text-blue-600 dark:text-blue-300">{{ project.author.username.0 | capfirst }}</span>
+                                </div>
+                                {{ project.author }} (admin)
+                            </a>
+                            {% for user in allowed_users %}
+                            <a href="#" class="flex items-center justify-between py-2 px-2 hover:bg-gray-100 ">
+                                <div class="flex items-center">
+                                    <div class="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 mx-1 bg-white rounded-full border-2 border-blue-600 dark:bg-gray-600">
+                                        <span class="font-medium text-blue-600 dark:text-blue-300">{{ user.username.0 | capfirst }}</span>
+                                    </div>
+                                    <div>{{ user.username }}{% if user == request.user %} (you){% endif %}</div>
+                                </div>
+                                {% if request.user == project.author %}
+                                    <form class="removeProjectUserForm" method="POST" action="{% url 'remove_project_user' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="project_id" value="{{ project.id }}">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button class="text-blue-500 hover:underline">Remove</button>
+                                    </form>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </li>
+                    </ul>
+                    {% if request.user == project.author %}
+                    <a id="add-new-user-btn" class="flex items-center p-3 text-sm font-medium text-blue-600 bg-gray-50 border-t border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-blue-500 hover:underline">
+                      <svg class="mr-1 w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path></svg>
+                      Add new user
+                    </a>
+                    <a id="project-user-input"  autocomplete="off" class="hidden h-auto flex flex-col items-center p-3 text-sm font-medium text-blue-600 bg-gray-50 border-t border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-blue-500">
+                        <p id="addProjectUsenameMessage" class="text-xs mb-2 text-left hidden"></p>
+                        <form id="addProjectUserForm" method="POST" action="{% url 'task_collab' %}" class="flex w-full h-8 mb-2">
+                            {% csrf_token %}
+                            <!-- <input type="text" name="reciever" placeholder="Username" class="w-3/4 bg-transparent border-bottom border-gray-200"> -->
+                            <div class="mb-6">
+                                <!-- <label for="success" class="block mb-2 text-sm font-medium text-green-700 dark:text-green-500">Your name</label> -->
+                            <input type="text" name="reciever" id="addProjectUserInput" class="h-10 bg-transparent border border-green-500text-sm rounded-none block w-full p-2.5" placeholder="Username">
+                            </div>
+                            <input type="hidden" name="project_id" value="{{ project.id }}">
+                            <button disabled id="addProjectUserSendButton" type="submit" class="justify-self-end w-1/4 bg-gray-500 px-2 py-1 text-white mx-2 rounded-sm cursor-not-allowed">Send</button>
+                        </form>
+                        <div class="text-gray-500">The users you add in the project will be able to view, edit and delete task's in this project</div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request.user == project.author %}
+            <form action="{% url 'delete_project' %}" method="POST" id="deleteProject">
+                {% csrf_token %}
+                <input type="hidden" value="{{ project.id }}" name="project_id">
+                <button type="submit" class="justify-self-end"><img src="{% static 'images/delete.png' %}" class="h-8 w-auto mx-2"></button>
+            </form>
+            {% else %}
+            <form action="{% url 'leave_project_user' %}" method="POST" id="leaveProjectUser">
+                {% csrf_token %}
+                <input type="hidden" value="{{ project.id }}" name="project_id">
+                <button type="submit" class="justify-self-end"><img src="{% static 'images/leave.png' %}" class="h-8 w-auto mx-2"></button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% for todo in ToDo %}
+        {% if todo.done == False %}
+        <div data-id="{{ todo.id }}" data-task-priority="{{ todo.priority }}" class="todo-item border-2 w-full h-auto mb-6 flex p-2 rounded-lg background-transparent border-none">
+            <div class="w-12 flex justify-items-center items-center">
+                <form data-id="{{ todo.id }}" class="task-done-form">
+                    <input name="task_checkbox" type="checkbox" class="task-checkbox">
+                </form>
+            </div>
+            <div class="task-item-click w-87">
+                <div class="task-title w-full font-semibold text-2xl priority-{{ todo.priority }}">{{ todo.title }}</div>
+                <div class="font-light text-sm">due on <span class="task-date font-normal text-base priority-{{ todo.priority }}">{{ todo.date_time }}</span></div>
+                <div class="w-full font-normal text-lg">{{ todo.description }}</div>
+            </div>
+        </div>
+        {% else %}
+        <div data-id="{{ todo.id }}" data-task-priority="{{ todo.priority }}" class="todo-item border-2 w-full h-auto mb-6 flex p-2 rounded-lg background-transparent border-none">
+            <div class="w-12 flex justify-items-center items-center">
+                <form data-id="{{ todo.id }}" class="task-done-form">
+                    <input checked name="task_checkbox" type="checkbox" class="task-checkbox">
+                </form>
+            </div>
+            <div class="task-item-click w-87 text-gray-400">
+                <div class="task-title w-full font-semibold text-2xl text-gray-400 line-through">{{ todo.title }}</div>
+                <div class="font-light text-sm">due on <span class="task-date font-normal text-base text-gray-400">{{ todo.date_time }}</span></div>
+                <div class="w-full font-normal text-lg">{{ todo.description }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <div id="add-todo" class="border-2 w-full h-auto my-6 p-2 rounded-lg hidden">
+            <form method="post" action="{% url 'add_todo' %}" class="w-full">
+                {% csrf_token %}
+                <input type="hidden" name="parent" value="None">
+                <input required name="title" placeholder="Title" type="text" class="w-full border-none my-1 px-4 font-bold h-10 focus:border-none">
+                <input required name="description" placeholder="Description" type="text" class="w-full border-none my-1 px-4 font-light h-8">
+                <div class="flex justify-between px-6 mt-2">
+                    <div class="">
+                        <input required name="date-time" id="add-task-date" type="datetime-local" min=""class="mx-2">
+                        <select name="priority" id="priority-select" class="mx-2">
+                            <option id="priority-4" value="priority-4" class="priority-4">Priority 4</option>
+                            <option id="priority-3" value="priority-3" class="priority-3">Priority 3</option>
+                            <option id="priority-2" value="priority-2" class="priority-2">Priority 2</option>
+                            <option id="priority-1" value="priority-1" class="priority-1">Priority 1</option>
+                        </select>
+                        {% if is_project %}
+                        <input type="hidden" name="project" value="{{ project.id }}">
+                        {% else %}
+                        <select name="project" id="project-select" class="mx-2">
+                            <option selected id="project-none" value="None">None</option>
+                            {% for project in projects %}
+                            <option id="{{ project.title }}" value="{{ project.id }}">{{ project.title }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+                    <div class="">
+                        <button id="add-task-cancel" class="justify-self-end bg-slate-300 mx-1">Cancel</button>
+                        <button type="submit" class="justify-self-end bg-red-500 px-2 py-1 text-white mx-1 rounded-sm">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <button id="add-todo-button">
+            <div class="flex align-middle text-xl ml-4">
+                <div class="plus-parent translate-y-2 mr-2 z--10">
+                    <div class="plus-child-horizontal"></div>
+                    <div class="plus-child-vertical"></div>
+                </div> Add Task
+            </div>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/index.js' %}"></script>
+<script src="https://unpkg.com/flowbite@1.5.2/dist/flowbite.js"></script>
+
+<script>
+
+    confirmDialog = document.getElementById('confirmDialog')
+    confirmMessage = document.getElementById('confirmMessage')
+    confirmYes = document.getElementById('confirmYes')
+    confirmNo = document.getElementById('confirmNo')
+    popups = document.getElementsByClassName('popup')
+
+    showConfirmation = function (element, message) {
+
+        element.addEventListener('submit', (event) => {
+            event.preventDefault()
+            
+            confirmDialog.classList.remove('hidden')
+            confirmMessage.innerText = message
+            
+            confirmYes.addEventListener('click', () => {
+                element.submit()
+            })
+            
+            confirmNo.addEventListener('click', () => {
+                confirmDialog.classList.add('hidden')
+                confirmMessage.innerText = ""
+            })
+            
+            confirmClose.addEventListener('click', () => {
+                confirmDialog.classList.add('hidden')
+                confirmMessage.innerText = ""
+            })
+        })
+    } 
+
+    addProjectUserForm = document.getElementById('addProjectUserForm')
+    deleteTaskForm = document.getElementById('deleteTaskForm')
+    deleteProject = document.getElementById('deleteProject')
+    removeProjectUserForm = document.getElementsByClassName('removeProjectUserForm')
+    leaveProjectUser = document.getElementById('leaveProjectUser')
+
+    showConfirmation(deleteTaskForm, "Are you sure you want to delete this task?")
+
+    if (typeof(addProjectUserForm) != undefined && addProjectUserForm !== null) {
+        showConfirmation(addProjectUserForm, "Are you sure you want to add this user to the project?")
+    }
+
+    if (typeof(deleteProject) != undefined && deleteProject !== null) {
+        showConfirmation(deleteProject, "Are you sure you want to delete this project?")
+    }
+
+    if (typeof(leaveProjectUser) != undefined && leaveProjectUser !== null) {
+        showConfirmation(leaveProjectUser, "Are you sure you want to leave this project?")
+    }
+
+    if (typeof(removeProjectUserForm) != undefined && removeProjectUserForm !== null) {
+
+        for (let removeForm of removeProjectUserForm) {
+            showConfirmation(removeForm, "Are you sure you want to remove this user from this project?")
+        }
+    }
+
+</script>
+
+
+{% if is_project and request.user == project.author %}
+    <script>
+    //add Project User
+    addProjectUserInput = document.getElementById("addProjectUserInput")
+    addProjectUserSendButton = document.getElementById("addProjectUserSendButton")
+
+    const doneTypingInterval = 0;  //time in ms (0.5 seconds)
+    var typingTimerProjectUser;     //timer identifier
+
+    //on keyup, start the countdown
+    $('#addProjectUserInput').on('change', function(){
+        clearTimeout(typingTimerProjectUser);
+        if ($('#addProjectUserInput').val()) {
+            typingTimerProjectUser = setTimeout(doneTypingProjectUsername, doneTypingInterval);
+        }
+    });
+
+    function doneTypingProjectUsername() {
+        $.ajax({
+            'url': "{% url 'typing_project_username' %}",
+            'method': "POST",
+            'data': {
+                "username": $("#addProjectUserInput").val(),
+                "project_id": "{{ project.id }}", 
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+            },
+
+            success: function (data) {
+                if (data.status == "success") {
+                    addProjectUsenameMessage.classList.remove("text-red-600")
+                    addProjectUsenameMessage.classList.add("text-green-600")
+                    addProjectUserSendButton.classList.remove("bg-gray-500", "cursor-not-allowed")
+                    addProjectUserSendButton.classList.add("bg-red-500", "cursor-pointer")
+                    addProjectUserSendButton.disabled = false
+                } else {
+                    addProjectUsenameMessage.classList.remove("text-green-600")
+                    addProjectUsenameMessage.classList.add("text-red-600")
+                    addProjectUserSendButton.classList.remove("bg-red-500", "cursor-pointer")
+                    addProjectUserSendButton.classList.add("bg-gray-500", "cursor-not-allowed")
+                    addProjectUserSendButton.disabled = true
+                }
+
+                $("#addProjectUsenameMessage").text(data.message)
+                $("#addProjectUsenameMessage").removeClass("hidden")
+            }
+        })
+    }
+    </script>
+{% endif %}
+
+<script>
+    //Task View
+    const taskItems = document.getElementsByClassName('todo-item')
+    const taskItemClick = document.getElementsByClassName('task-item-click')
+    const taskView = document.getElementById('task-view')
+    const taskViewClose = document.getElementById('task-view-close')
+    const taskViewSection1 = document.getElementById('task-view-section-1')
+    const taskViewSection2 = document.getElementById('task-view-section-2')
+    const taskViewBar = document.getElementById('task-view-bar')
+
+    const taskViewTitle = document.getElementById('task-view-title')
+    const taskViewDescription = document.getElementById('task-view-description')
+    const taskIdInputs = document.getElementsByClassName('task-id')
+
+    const commentTitle = document.getElementById('comment-title')
+    const commentSection = document.getElementById('comment-section')
+
+    const dateOptions = {year: "numeric", month: "short", day: "numeric"}
+
+    for (let i = 0; i < taskItems.length; i++) {
+        taskItemClick[i].addEventListener('click', () => {
+            taskView.classList.remove('hidden')
+            taskViewSection2.classList.add(`taskview-background-priority-${taskItems[i].dataset.taskPriority}`)
+            // taskViewBar.classList.add(`background-priority-${taskItems[i].dataset.taskPriority}`)
+            
+            for (let j = 0; j < taskIdInputs.length; j++) {
+                taskIdInputs[j].setAttribute('value', taskItems[i].dataset.id)
+            }
+
+            $.ajax({
+                url: "{% url 'task_view' %}",
+                type: "POST",
+                data: {
+                    'task_id': taskItems[i].dataset.id,
+                    'user': "{{ request.user }}",
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+
+                success: function (data) {
+                    $('#task-view-title').text(data.title) 
+                    $('#task-view-description').text(data.description)
+                    $('#comment-title').text("Comments(" + data.comments.length + ")")
+                    $('#task-view-date-added').text(new Date(data.date_added.slice(0, 10)).toLocaleDateString('en-us', dateOptions))
+                    $('#task-view-due-date').text(`Due on ${new Date(data.date.slice(0, 10)).toLocaleDateString('en-us', dateOptions)}`)
+
+                    $("#edit-title").attr("value", data.title)
+                    $("#edit-description").attr("value", data.description)
+                    $("#edit-date-time").attr("value", data.date.slice(0, 16))
+
+                    for (let i = data.comments.length - 1; i >= 0; i--) {
+
+                        // <div class="flex py-2">
+                        //     <img src="{% static 'images/no_profile.png' %}" class="w-10 h-10 rounded-full m-2">
+                        //     <div>
+                        //         <div class="px-2"><span class="font-semibold">EdgeTasks</span><span class="font-normal"> on 22 July 2022</span></div>
+                        //         <div class="px-2">This is the comment content. I wanted to make this a very long comment so that is why I am typing nonsense here plz ignore this.</div>
+                        //     </div>
+                        // </div>
+
+                        // <div class="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 mx-1 bg-white rounded-full border-2 border-blue-600">
+                        //     <span class="font-medium text-blue-600 dark:text-blue-300">{{ request.user.username.0 | capfirst }}</span>
+                        // </div>
+                        mainCommentDiv = document.createElement('div')
+                        commentSection.appendChild(mainCommentDiv)
+                        mainCommentDiv.classList.add("comment-element")
+                        mainCommentDiv.classList.add("flex")
+                        mainCommentDiv.classList.add("py-2")
+                        profilePic = document.createElement('div')
+                        profilePic.classList.add("inline-flex", "overflow-hidden", "relative", "justify-center", "w-8", "h-8", "mx-1", "bg-white", "rounded-full", "border-2", "border-blue-600")
+                        mainCommentDiv.appendChild(profilePic)
+                        profilePicSpan = document.createElement('span')
+                        profilePicSpan.classList.add("font-medium", "text-blue-600")
+                        profilePicSpan.innerText = data.comments[i].author.charAt(0).toUpperCase()
+                        profilePic.appendChild(profilePicSpan)
+                        commentInfoDiv = document.createElement('div')
+                        mainCommentDiv.appendChild(commentInfoDiv)
+                        commentInfoDiv.classList.add("px-2")
+                        commentAuthorDateDiv = document.createElement('div')
+                        commentInfoDiv.appendChild(commentAuthorDateDiv)
+                        authorSpan = document.createElement('span')
+                        commentAuthorDateDiv.appendChild(authorSpan)
+                        authorSpan.classList.add("font-semibold")
+                        authorSpan.innerText = data.comments[i].author
+                        dateSpan = document.createElement('span')
+                        commentAuthorDateDiv.appendChild(dateSpan)
+                        dateSpan.classList.add("font-seminormal")
+                        dateSpan.innerText = ` on ${new Date(data.comments[i].date.slice(0, 10)).toLocaleDateString('en-us', dateOptions)}`
+                        commentContentDiv = document.createElement('div')
+                        commentInfoDiv.appendChild(commentContentDiv)
+                        commentContentDiv.innerText = data.comments[i].content
+                    }
+
+                    // <div data-id="" data-task-priority="" class="todo-item border-2 w-full h-auto my-6 flex p-2 rounded-lg background-priority-{{ todo.priority }} border-priority-{{ todo.priority }}">
+                    //     <div class="w-12 flex justify-items-center items-center">
+                    //         <input type="checkbox">
+                    //     </div>
+                    //     <div class="w-87">
+                    //         <div class="w-full font-semibold text-2xl priority-{{ todo.priority }}">This is the Subtask title</div>
+                    //         <div class="font-light text-sm">due on <span class="font-normal text-base">24 Aug</span></div>
+                    //         <div class="w-full font-normal text-lg">This is the description</div>
+                    //     </div>
+                    // </div>
+                    
+                    const subTaskView = document.getElementById('sub-task-view')
+
+                    for (let i = data.sub_tasks.length - 1; i >= 0; i--) {
+                        mainSubTaskDiv = document.createElement('div')
+                        subTaskView.appendChild(mainSubTaskDiv)
+                        mainSubTaskDiv.classList.add('sub-task-item', 'border-none', 'w-full', 'h-auto', 'my-6', 'flex', 'p-2', 'rounded-lg')
+                        inputDiv = document.createElement('div')
+                        mainSubTaskDiv.appendChild(inputDiv)
+                        inputDiv.classList.add('w-12')
+                        checkBoxInput = document.createElement('input')
+                        checkBoxInput.type = "checkbox"
+                        inputDiv.classList.add("flex", "justify-center", "items-center", "m-2")
+                        inputDiv.appendChild(checkBoxInput)
+                        subTaskContentDiv = document.createElement('div')
+                        mainSubTaskDiv.appendChild(subTaskContentDiv)
+                        subTaskContentDiv.classList.add('w-87')
+                        subTaskTitle = document.createElement('div')
+                        subTaskContentDiv.appendChild(subTaskTitle)
+                        subTaskTitle.classList.add('w-full', 'font-semibold', 'text-2xl')
+                        subTaskTitle.innerText = data.sub_tasks[i].title
+                        subTaskDateDiv = document.createElement('div')
+                        subTaskContentDiv.appendChild(subTaskDateDiv)
+                        subTaskDescription = document.createElement('div')
+                        subTaskContentDiv.appendChild(subTaskDescription)
+                        subTaskDescription.classList.add('w-full', 'font-normal', 'text-lg')
+                        subTaskDescription.innerText = data.sub_tasks[i].description
+
+                        if (data.sub_tasks[i].done) {
+                            subTaskTitle.classList.add("text-gray-400", "line-through")
+                            subTaskDescription.classList.add("text-gray-400")
+                            checkBoxInput.checked = true
+                        }
+
+                        checkBoxInput.addEventListener('change', () => {
+                            $.ajax({
+                                'url': "{% url 'task_done' %}",
+                                'type': "POST",
+                                'data': {
+                                    'task_id': data.sub_tasks[i].id,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+
+                                success: function (data) {
+                                    if (data.done) {
+                                        subTaskTitle.classList.add("text-gray-400", "line-through")
+                                        subTaskDescription.classList.add("text-gray-400")
+                                    } else {
+                                        subTaskTitle.classList.remove("text-gray-400", "line-through")
+                                        subTaskDescription.classList.remove("text-gray-400")
+                                    }
+                                }
+                            })
+                        })
+                    }
+                }
+            })
+        })
+    }
+
+    const taskDoneForm = document.getElementsByClassName('task-done-form')
+    const taskCheckBox = document.getElementsByClassName('task-checkbox')
+    for (let i = 0; i < taskDoneForm.length; i++) {
+        taskCheckBox[i].addEventListener('click', () => {
+            $.ajax(
+                {
+                    url: "{% url 'task_done' %}",
+                    method: "POST",
+                    data: {
+                        'task_id': taskDoneForm[i].dataset.id,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+
+                success: function (data) {
+                    taskItem = document.getElementsByClassName('todo-item')[i]
+                    taskTitle = document.getElementsByClassName('task-title')[i]
+                    taskDate = document.getElementsByClassName('task-date')[i]
+                    if (data.done) {
+                        for (let i = 1; i < 5; i++) {
+                            taskTitle.classList.remove(`priority-${i}`)
+                            taskDate.classList.remove(`priority-${i}`)
+                        }
+                        taskItem.classList.add("text-gray-400")
+                        taskTitle.classList.add("line-through")
+                        taskTitle.classList.add("text-gray-400")
+                        taskDate.classList.add("text-gray-400")
+                    } else {
+                        taskItem.classList.remove("text-gray-400")
+                        taskTitle.classList.remove("line-through")
+                        taskTitle.classList.remove("text-gray-400")
+                        taskDate.classList.remove("text-gray-400")
+                        taskItem.classList.add("text-black")
+                        taskTitle.classList.add(`priority-${data.priority}`)
+                        taskDate.classList.add(`priority-${data.priority}`)
+                    }
+                }
+                },
+            )
+        })
+    }
+    
+
+    taskViewClose.addEventListener('click', () => {
+        taskView.classList.add('hidden')
+        taskViewTitle.innerText = ""
+        taskViewDescription.innerText = ""
+
+        commentElem = document.getElementsByClassName('comment-element')
+        for (let i = commentElem.length - 1; i >= 0; i--) {
+            commentElem[i].parentNode.removeChild(commentElem[i])
+        }
+
+        for (let i = 0; i < 4; i++) {
+            taskViewSection2.classList.remove(`taskview-background-priority-${i}`)
+        }
+
+        subTaskItems = document.getElementsByClassName('sub-task-item')
+        for (let i = subTaskItems.length - 1; i >= 0; i--) {
+            subTaskItems[i].parentNode.removeChild(subTaskItems[i])
+        }
+    })
+
+    editButton = document.getElementById('edit-button')
+    taskViewInfo = document.getElementById('task-view-info')
+    taskViewEdit = document.getElementById('task-view-edit')
+    cancelEditButton = document.getElementById('cancel-edit')
+
+    editButton.addEventListener('click', () => {
+        taskViewInfo.classList.add('hidden')
+        taskViewEdit.classList.remove('hidden')
+    })
+
+    cancelEditButton.addEventListener('click', () => {
+        taskViewInfo.classList.remove('hidden')
+        taskViewEdit.classList.add('hidden')
+    })
+
+    //Subtasks
+    const addSubTaskButton = document.getElementById('add-sub-task-button')
+    const taskViewSubSection = document.getElementById('task-view-sub-section')
+    const addSubTask = document.getElementById('add-sub-task')
+    const addSubTaskCancel = document.getElementById('add-sub-task-cancel')
+    
+    addSubTaskButton.addEventListener('click', () => {
+        addSubTaskButton.classList.add('hidden')
+        addSubTask.classList.remove('hidden')
+    })
+
+    addSubTaskCancel.addEventListener('click', () => {
+        addSubTask.classList.add('hidden')
+        addSubTaskButton.classList.remove('hidden')
+    })
+
+    </script>
+
+    {% if is_project %}
+    <script>
+
+    //Collaborate
+    const addNewUserBtn = document.getElementById('add-new-user-btn')
+    const projectUserInput = document.getElementById('project-user-input')
+    
+    if (typeof(addNewUserBtn) != undefined && addNewUserBtn !== null) {
+        addNewUserBtn.addEventListener('click', () => {
+            addNewUserBtn.classList.add('hidden')
+            projectUserInput.classList.remove('hidden')
+        })
+    }
+
+    const dropdownUsers = document.getElementById('dropdownUsers')
+    const dropDownUsersBtn = document.getElementById('dropdownUsersButton')
+
+    dropDownUsersBtn.addEventListener('click', () => {
+        dropdownUsers.classList.toggle('hidden')
+        if ((typeof(addNewUserBtn) !== undefined && addNewUserBtn !== null) && (typeof(projectUserInput) !== undefined && projectUserInput !== null)) {
+            addNewUserBtn.classList.remove('hidden')
+            projectUserInput.classList.add('hidden')
+        }
+    })
+    </script>
+    {% endif %}
+
+{% endblock %}

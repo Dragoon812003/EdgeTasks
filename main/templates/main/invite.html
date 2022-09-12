@@ -1,0 +1,42 @@
+{% extends "./base.html" %}
+
+{% block task_area %}
+    {% comment %} {% for invite in invites %}
+        <form method="POST" action="{% url 'invite_form' %}">
+            {% csrf_token %}
+            <div>{{ invite.project.title }}</div>
+            <div>{{ invite.sender.username }}</div>
+            <input name="invite_id" type="hidden" value="{{ invite.id }}">
+            <input name="accept_and_reject" type="submit" value="accept">
+            <input name="accept_and_reject" type="submit" value="reject">
+        </div>
+    {% endfor %} {% endcomment %}
+	    
+    <div class="width-64 mx-auto my-4">
+	    <br>
+        <h2 class="text-4xl font-bold dark:text-white">Invitations</h2>
+        <br>
+        {% for invite in invites %}
+        <div class="w-4/5 flex">
+            <div class="w-1/12 flex justify-center items-center">
+                <div class="inline-flex overflow-hidden relative justify-center items-center w-10 h-10 mx-1 bg-white rounded-full border-2 border-blue-600 dark:bg-gray-600">
+                    <span class="font-medium text-blue-600 dark:text-blue-300">{{ invite.sender.username.0 | capfirst }}</span>
+                </div>
+            </div>
+            <div class="w-7/12 px-2">
+                <div class="text-xl font-bold">{{ invite.project.title }}</div>
+                <div class="text-base font-normal">-{{ invite.sender.username }}</div>
+            </div>
+            <div class="flex justify-center items-center w-4/12">
+                <form method="POST" action="{% url 'invite_form' %}">
+                    {% csrf_token %}
+                    <input name="invite_id" type="hidden" value="{{ invite.id }}">
+                    <input type="submit" name="accept_and_reject" value="Accept" class="justify-self-end bg-red-500 px-2 py-1 text-white mx-1 rounded-sm">
+                    <input type="submit" name="accept_and_reject" value="Reject" class="justify-self-end bg-transparent mx-1">
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
