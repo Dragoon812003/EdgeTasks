@@ -321,18 +321,17 @@
 
 </script>
 
-
 {% if is_project and request.user == project.author %}
     <script>
     //add Project User
     addProjectUserInput = document.getElementById("addProjectUserInput")
     addProjectUserSendButton = document.getElementById("addProjectUserSendButton")
 
-    const doneTypingInterval = 0;  //time in ms (0.5 seconds)
+    const doneTypingInterval = 250;  //time in ms (0.25 seconds)
     var typingTimerProjectUser;     //timer identifier
 
     //on keyup, start the countdown
-    $('#addProjectUserInput').on('change', function(){
+    $('#addProjectUserInput').on('keyup', function(){
         clearTimeout(typingTimerProjectUser);
         if ($('#addProjectUserInput').val()) {
             typingTimerProjectUser = setTimeout(doneTypingProjectUsername, doneTypingInterval);
@@ -340,35 +339,38 @@
     });
 
     function doneTypingProjectUsername() {
-        $.ajax({
-            'url': "{% url 'typing_project_username' %}",
-            'method': "POST",
-            'data': {
-                "username": $("#addProjectUserInput").val(),
-                "project_id": "{{ project.id }}", 
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-            },
+        console.log("Input Changed!")
+            $.ajax({
+                'url': "{% url 'typing_project_username' %}",
+                'method': "POST",
+                'data': {
+                    "username": $("#addProjectUserInput").val(),
+                    "project_id": "{{ project.id }}", 
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
 
-            success: function (data) {
-                if (data.status == "success") {
-                    addProjectUsenameMessage.classList.remove("text-red-600")
-                    addProjectUsenameMessage.classList.add("text-green-600")
-                    addProjectUserSendButton.classList.remove("bg-gray-500", "cursor-not-allowed")
-                    addProjectUserSendButton.classList.add("bg-red-500", "cursor-pointer")
-                    addProjectUserSendButton.disabled = false
-                } else {
-                    addProjectUsenameMessage.classList.remove("text-green-600")
-                    addProjectUsenameMessage.classList.add("text-red-600")
-                    addProjectUserSendButton.classList.remove("bg-red-500", "cursor-pointer")
-                    addProjectUserSendButton.classList.add("bg-gray-500", "cursor-not-allowed")
-                    addProjectUserSendButton.disabled = true
+                success: function (data) {
+                    console.log("Success!")
+                    if (data.status == "success") {
+                        addProjectUsenameMessage.classList.remove("text-red-600")
+                        addProjectUsenameMessage.classList.add("text-green-600")
+                        addProjectUserSendButton.classList.remove("bg-gray-500", "cursor-not-allowed")
+                        addProjectUserSendButton.classList.add("bg-red-500", "cursor-pointer")
+                        addProjectUserSendButton.disabled = false
+                    } else {
+                        addProjectUsenameMessage.classList.remove("text-green-600")
+                        addProjectUsenameMessage.classList.add("text-red-600")
+                        addProjectUserSendButton.classList.remove("bg-red-500", "cursor-pointer")
+                        addProjectUserSendButton.classList.add("bg-gray-500", "cursor-not-allowed")
+                        addProjectUserSendButton.disabled = true
+                    }
+
+                    $("#addProjectUsenameMessage").text(data.message)
+                    $("#addProjectUsenameMessage").removeClass("hidden")
                 }
-
-                $("#addProjectUsenameMessage").text(data.message)
-                $("#addProjectUsenameMessage").removeClass("hidden")
-            }
-        })
+            })
     }
+    
     </script>
 {% endif %}
 
